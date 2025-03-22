@@ -2,16 +2,8 @@ package helpers
 
 const (
 	// Response codes
-	SuccessRespCode             = "000"
-	ErrorRespCode               = "001"
-	NotFoundRespCode            = "002"
-	InvalidInputRespCode        = "003"
-	UnauthorizedRespCode        = "004"
-	ForbiddenRespCode           = "005"
-	ConflictRespCode            = "006"
-	InternalServerErrorRespCode = "007"
-	ServiceUnavailableRespCode  = "008"
-	GatewayTimeoutRespCode      = "009"
+	SuccessRespCode = "000"
+	ErrorRespCode   = "001"
 
 	// Response messages
 	SuccessRespDesc                = "Success"
@@ -24,6 +16,7 @@ const (
 	InternalServerErrorRespDesc    = "Internal Server Error"
 	InvalidRequestDataRespDesc     = "Invalid request data"
 	InvalidPhoneOrPasswordRespDesc = "Invalid phone number or password"
+	DeactivatedUserRespDesc        = "User is deactivated"
 	InvalidTokenRespDesc           = "Invalid token"
 	ExpiredTokenRespDesc           = "Expired token"
 	InvalidCredentialsRespDesc     = "Invalid credentials"

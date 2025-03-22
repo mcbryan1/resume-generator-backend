@@ -3,6 +3,7 @@ package helpers
 import (
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -85,12 +86,18 @@ func GetUserByEmail(email string) (models.User, error) {
 func ProcessLogin(c *gin.Context) (req map[string]interface{}, user models.User, tokenString string, err error) {
 	req, err = ParseRequest(c)
 	if err != nil {
-		RespondWithError(c, http.StatusBadRequest, InvalidRequestDataRespDesc, InvalidInputRespCode)
+		RespondWithError(c, http.StatusBadRequest, InvalidRequestDataRespDesc, ErrorRespCode)
 	}
 
 	user, err = GetUserByEmail(req["email"].(string))
 	if err != nil {
 		RespondWithError(c, http.StatusUnauthorized, InvalidPhoneOrPasswordRespDesc, ErrorRespCode)
+		return
+	}
+
+	// Check if user is active in the database
+	if !user.IsActive {
+		RespondWithError(c, http.StatusUnauthorized, DeactivatedUserRespDesc, ErrorRespCode)
 		return
 	}
 
@@ -101,9 +108,21 @@ func ProcessLogin(c *gin.Context) (req map[string]interface{}, user models.User,
 
 	tokenString, err = GenerateJWTToken(user)
 	if err != nil {
-		RespondWithError(c, http.StatusInternalServerError, InternalServerErrorRespDesc, InternalServerErrorRespCode)
+		RespondWithError(c, http.StatusInternalServerError, InternalServerErrorRespDesc, ErrorRespCode)
 		return
 	}
 
 	return
+}
+
+func IsEmailValid(email string) bool {
+	emailRegex := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+	match := regexp.MustCompile(emailRegex).MatchString
+	return match(email)
+}
+
+func UserExistsByEmail(email string) bool {
+	var user models.User
+	result := database.DB.Where("email = ?", email).First(&user)
+	return result.Error == nil
 }
