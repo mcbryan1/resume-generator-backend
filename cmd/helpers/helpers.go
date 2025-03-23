@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -52,6 +53,8 @@ func CheckPassword(user models.User, password string) error {
 //   - error: An error if the token could not be signed.
 func GenerateJWTToken(user models.User) (string, error) {
 	var s = os.Getenv("JWT_SECRET")
+	// Log the user ID
+	fmt.Printf("User ID: %s\n", user.ID)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
@@ -125,4 +128,43 @@ func UserExistsByEmail(email string) bool {
 	var user models.User
 	result := database.DB.Where("email = ?", email).First(&user)
 	return result.Error == nil
+}
+
+// func GetUserIDFromContext(c *gin.Context) (string, bool, error) {
+// 	userID, exists := c.Get("user_id")
+// 	// Log the user ID and the existence of the user ID in the context
+// 	fmt.Println("User ID from context", userID)
+// 	fmt.Println(exists)
+// 	if !exists {
+// 		return "", false, nil
+// 	}
+// 	typedUserID, ok := userID.(string)
+// 	if !ok {
+// 		return "", false, fmt.Errorf("failed to retrieve user ID from context")
+// 	}
+
+// 	return typedUserID, true, nil
+// }
+
+func GetUserIDFromContext(c *gin.Context) (string, bool, error) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		return "", false, nil
+	}
+
+	// Convert the userID to string, handling different possible types
+	var userIDStr string
+	switch v := userID.(type) {
+	case string:
+		userIDStr = v
+	case fmt.Stringer:
+		userIDStr = v.String()
+	default:
+		return "", false, fmt.Errorf("invalid user ID type: %T", userID)
+	}
+
+	// Add debug logging
+	fmt.Printf("User ID type: %T, value: %v\n", userID, userID)
+
+	return userIDStr, true, nil
 }

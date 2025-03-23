@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,16 +12,13 @@ import (
 )
 
 func LoginUser(c *gin.Context) {
-	_, user, tokenString, err := helpers.ProcessLogin(c)
+	_, _, tokenString, err := helpers.ProcessLogin(c)
 
 	if err != nil {
 		// helpers.RespondWithError(c, 400, "Login failed", err.Error())
 		return
 	}
-
-	userResponse := helpers.LoginResponseSerializer(user)
 	helpers.RespondWithSuccess(c, 200, "Login successful", helpers.SuccessRespCode, gin.H{
-		"user":  userResponse,
 		"token": tokenString,
 	})
 }
@@ -70,7 +68,21 @@ func RegisterUser(c *gin.Context) {
 }
 
 func GetUserProfile(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Get user profile",
-	})
+	userID, ok, err := helpers.GetUserIDFromContext(c)
+	if !ok || err != nil {
+		helpers.RespondWithError(c, http.StatusUnauthorized, "User not authenticated", "401")
+		return
+	}
+
+	// Add debug logging
+
+	var user models.User
+	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		fmt.Printf("Database error: %v\n", err) // Debug log
+		helpers.RespondWithError(c, http.StatusNotFound, "User not found", "404")
+		return
+	}
+
+	userResponse := helpers.LoginResponseSerializer(user)
+	helpers.RespondWithSuccess(c, http.StatusOK, "User profile retrieved successfully", helpers.SuccessRespCode, userResponse)
 }
