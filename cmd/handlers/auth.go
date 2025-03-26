@@ -74,8 +74,6 @@ func GetUserProfile(c *gin.Context) {
 		return
 	}
 
-	// Add debug logging
-
 	var user models.User
 	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		fmt.Printf("Database error: %v\n", err) // Debug log

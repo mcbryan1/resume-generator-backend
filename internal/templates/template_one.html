@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial;
+      }
+      h1 {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{{.Name}}</h1>
+    <p><strong>Summary:</strong> {{.Summary}}</p>
+
+    <h2>Skills</h2>
+    <ul>
+      {{range .Skills}}
+      <li>{{.}}</li>
+      {{end}}
+    </ul>
+
+    <h2>Work Experience</h2>
+    {{range .WorkExperience}}
+    <p><strong>{{.Role}}</strong> at {{.Company}} ({{.Years}})</p>
+    <p>{{.Description}}</p>
+    {{end}}
+
+    <h2>Projects</h2>
+    {{range .Projects}}
+    <p><strong>{{.Name}}</strong></p>
+    <p>{{.Description}}</p>
+    <p><strong>Tech Stack:</strong> {{range .Technologies}}{{.}}, {{end}}</p>
+    {{end}}
+
+    <h2>Education</h2>
+    {{range .Education}}
+    <p>{{.Degree}} - {{.School}} ({{.Years}})</p>
+    {{end}}
+
+    <h2>Certifications</h2>
+    {{range .Certifications}}
+    <p>{{.Name}} ({{.Year}})</p>
+    {{end}}
+
+    <h2>Additional Info</h2>
+    <p>{{.AdditionalInfo}}</p>
+  </bo dy>
+</html>

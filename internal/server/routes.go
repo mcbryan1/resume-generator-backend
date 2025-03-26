@@ -12,6 +12,7 @@ func RegisterRoutes() *gin.Engine {
 
 	applyCORS(r)
 	authRoutes(r)
+	templateRoutes(r)
 
 	return r
 }
@@ -38,5 +39,14 @@ func authRoutes(r *gin.Engine) {
 		{
 			protected.GET("/profile", handlers.GetUserProfile)
 		}
+	}
+}
+
+func templateRoutes(r *gin.Engine) {
+	template := r.Group("/v1/templates")
+	template.Use(middlewares.AuthMiddleware())
+	{
+		template.POST("/create-template", handlers.CreateTemplate)
+
 	}
 }

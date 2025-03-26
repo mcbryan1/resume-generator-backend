@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -11,8 +12,8 @@ func ValidateRequest(req map[string]interface{}, req_type string) error {
 	switch req_type {
 	case "User":
 		requiredFields = []string{"first_name", "last_name", "email", "password"}
-	case "Todo":
-		requiredFields = []string{"title"}
+	case "Template":
+		requiredFields = []string{"name", "preview_url"}
 	default:
 		return fmt.Errorf("invalid request type")
 	}
@@ -39,5 +40,32 @@ func ValidateRequest(req map[string]interface{}, req_type string) error {
 		}
 	}
 
+	// Additional validation for Template type
+	if req_type == "Template" {
+		// Validate price
+		if price, ok := req["price"].(float64); ok {
+			if price < 0 {
+				return fmt.Errorf("price must be greater than 0")
+			}
+		}
+
+		// Validate premium template price
+		if isPremium, ok := req["is_premium"].(bool); ok {
+			if price, ok := req["price"].(float64); ok {
+				if isPremium && price == 0 {
+					return fmt.Errorf("premium templates must have a price")
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func ValidateTemplateLayout(layout string) error {
+	var jsonStruct interface{}
+	if err := json.Unmarshal([]byte(layout), &jsonStruct); err != nil {
+		return fmt.Errorf("invalid JSON layout: %v", err)
+	}
 	return nil
 }

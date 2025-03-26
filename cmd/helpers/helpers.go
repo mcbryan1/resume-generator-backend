@@ -9,6 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mcbryan1/resume-builder-backend/cmd/models"
 	"github.com/mcbryan1/resume-builder-backend/internal/database"
 	"golang.org/x/crypto/bcrypt"
@@ -167,4 +168,10 @@ func GetUserIDFromContext(c *gin.Context) (string, bool, error) {
 	fmt.Printf("User ID type: %T, value: %v\n", userID, userID)
 
 	return userIDStr, true, nil
+}
+
+func TemplateExistsByName(name string) bool {
+	var template models.Template
+	database.DB.Where("name = ?", name).First(&template)
+	return template.ID != uuid.Nil
 }
